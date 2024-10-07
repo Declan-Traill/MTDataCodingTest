@@ -59,7 +59,6 @@ namespace SerialReaderNamespace
                 buffer.clear();
 
                 // Attempt to read data from the serial port
-                //bytesRead = serial_.read_some(serial_, boost::asio::buffer(readBuffer));
                 try {
                     bytesRead = serial_.read_some(boost::asio::buffer(readBuffer));
                 } catch (const boost::system::system_error& e) {
