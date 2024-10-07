@@ -44,6 +44,7 @@ namespace SerialReaderNamespace
 
             // Create a buffer for reading
             char readBuffer[1024]; // Adjust size as needed
+	    int grand_total = 0;
 
             // Calculate the first print time at a 10-second boundary
             time_t nextTime = time(nullptr);
@@ -80,12 +81,14 @@ namespace SerialReaderNamespace
 
                 size_t start = buffer.find(START_PACKET_STRING);
                 size_t end = buffer.find(END_PACKET_STRING);
+		int total = 0;
 
                 // Check that both the Start and End strings are present in the buffer
                 if (start != string::npos && end != string::npos)
                 {
                     string packet = buffer.substr(start, end - start + strlen(END_PACKET_STRING));
-                    parsePacketData(packet, jsonData);
+                    parsePacketData(packet, jsonData, total);
+		    grand_total += total;
                     buffer.erase(0, end + strlen(END_PACKET_STRING));
                 }
 
@@ -101,6 +104,9 @@ namespace SerialReaderNamespace
                 // On each 10 second time interval
                 if ((currentSeconds >= nextSeconds) && ((currentSeconds - nextSeconds) < 30))
                 {
+                    // Update the TOTAL key in jsonData with the grand_total value
+                    jsonData[JSON_TOTAL_KEY] = grand_total;
+
                     Json::StreamWriterBuilder writer;
                     string jsonOutput = Json::writeString(writer, jsonData);
 
@@ -109,6 +115,9 @@ namespace SerialReaderNamespace
 
                     // Clear jsonData before processing new data
                     jsonData.clear();
+
+		    // reset the grand total
+		    grand_total = 0;
 
                     // Update the next print time to the next 10-second boundary
                     nextSeconds += 10;
@@ -124,11 +133,11 @@ namespace SerialReaderNamespace
         io_service io_context;
         serial_port serial_;
 
-        bool parsePacketData(const string& data, Json::Value& jsonData)
+        bool parsePacketData(const string& data, Json::Value& jsonData, int& total)
         {
             stringstream ss(data);
             string line;
-            int total = 0, calculatedTotal = 0;
+            int calculatedTotal = 0;
 
             while (getline(ss, line))
             {
