@@ -45,6 +45,7 @@ namespace SerialReaderNamespace
             // Create a buffer for reading
             char readBuffer[1024]; // Adjust size as needed
             int grand_total = 0;
+            bool valid = true;
 
             // Calculate the first print time at a 10-second boundary
             time_t nextTime = time(nullptr);
@@ -86,8 +87,14 @@ namespace SerialReaderNamespace
                 if (start != string::npos && end != string::npos)
                 {
                     string packet = buffer.substr(start, end - start + strlen(END_PACKET_STRING));
-                    parsePacketData(packet, jsonData, total);
-                    grand_total += total;
+                    if (parsePacketData(packet, jsonData, total))
+                    {
+                        grand_total += total;
+                    }
+                    else
+                    {
+                        valid = false;
+                    }
                     buffer.erase(0, end + strlen(END_PACKET_STRING));
                 }
 
@@ -106,6 +113,9 @@ namespace SerialReaderNamespace
                     // Update the TOTAL key in jsonData with the grand_total value
                     jsonData[JSON_TOTAL_KEY] = grand_total;
 
+                    // Update the VALID key in jsonData with the accumulated valid value
+                    jsonData[JSON_VALID_KEY] = valid;
+
                     Json::StreamWriterBuilder writer;
                     string jsonOutput = Json::writeString(writer, jsonData);
 
@@ -117,6 +127,9 @@ namespace SerialReaderNamespace
 
                     // reset the grand total
                     grand_total = 0;
+                    
+                    // default to true initially
+                    valid = true;
 
                     // Update the next print time to the next 10-second boundary
                     nextSeconds += 10;
@@ -175,7 +188,7 @@ namespace SerialReaderNamespace
             jsonData[JSON_TOTAL_KEY] = total;
             jsonData[JSON_VALID_KEY] = (total == calculatedTotal);
 
-            return true;
+            return (total == calculatedTotal);
         }
     };
 }
