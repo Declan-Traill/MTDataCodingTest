@@ -44,7 +44,7 @@ namespace SerialReaderNamespace
 
             // Create a buffer for reading
             char readBuffer[1024]; // Adjust size as needed
-	    int grand_total = 0;
+            int grand_total = 0;
 
             // Calculate the first print time at a 10-second boundary
             time_t nextTime = time(nullptr);
@@ -81,14 +81,14 @@ namespace SerialReaderNamespace
 
                 size_t start = buffer.find(START_PACKET_STRING);
                 size_t end = buffer.find(END_PACKET_STRING);
-		int total = 0;
+                int total = 0;
 
                 // Check that both the Start and End strings are present in the buffer
                 if (start != string::npos && end != string::npos)
                 {
                     string packet = buffer.substr(start, end - start + strlen(END_PACKET_STRING));
                     parsePacketData(packet, jsonData, total);
-		    grand_total += total;
+                    grand_total += total;
                     buffer.erase(0, end + strlen(END_PACKET_STRING));
                 }
 
@@ -116,8 +116,8 @@ namespace SerialReaderNamespace
                     // Clear jsonData before processing new data
                     jsonData.clear();
 
-		    // reset the grand total
-		    grand_total = 0;
+                    // reset the grand total
+                    grand_total = 0;
 
                     // Update the next print time to the next 10-second boundary
                     nextSeconds += 10;
@@ -144,30 +144,30 @@ namespace SerialReaderNamespace
                 // Check that the Total string is found in the current line
                 if (line.find(JSON_TOTAL_KEY) != string::npos)
                 {
-		    string total_kg = line.substr(VALUE_START_INDEX, line.find(MASS_UNIT_STRING));
+                    string total_kg = line.substr(VALUE_START_INDEX, line.find(MASS_UNIT_STRING));
 
-		    try
+                    try
                     {
-			total = stoi(total_kg);
-		    }
-		    catch (const exception& e)
-		    {
-		        total = 0;
-		    }
+                        total = stoi(total_kg);
+                    }
+                    catch (const exception& e)
+                    {
+                        total = 0;
+                    }
                 }
                 else if (!line.empty() && IS_CAPITAL_LETTER(line[0]))
                 {
                     string value_str = line.substr(VALUE_START_INDEX, line.find(MASS_UNIT_STRING));
-		    int value;
+                    int value;
 
-		    try
+                    try
                     {
-			value = stoi(value_str);
-		    }
-		    catch (const exception& e)
-		    {
-		        value = 0;
-		    }
+                        value = stoi(value_str);
+                    }
+                    catch (const exception& e)
+                    {
+                        value = 0;
+                    }
                     jsonData[JSON_CHANNELS_KEY].append(value);
                     calculatedTotal += value;
                 }
