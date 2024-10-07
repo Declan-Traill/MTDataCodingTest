@@ -65,7 +65,7 @@ namespace SerialReaderNamespace
                 } catch (const boost::system::system_error& e) {
                     // Handle the error appropriately
                     cerr << "Error reading from serial port: " << e.what() << endl;
-	            throw boost::system::system_error(error); // Handle any error
+                    throw boost::system::system_error(error); // Handle any error
                 }
 
                 // Debug: Print the raw data read
